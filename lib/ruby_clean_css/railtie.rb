@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'action_controller/railtie'
-require_relative 'ruby_clean_css/sprockets'
+require_relative 'sprockets'
 
 module RubyCleanCSS
   class Railtie < ::Rails::Railtie

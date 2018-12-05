@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'exports'
+
 module RubyCleanCSS
 
   # Instances should NOT be shared among threads.
