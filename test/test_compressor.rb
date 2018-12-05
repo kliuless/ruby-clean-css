@@ -47,7 +47,7 @@ class RubyCleanCSS::TestCompressor < Test::Unit::TestCase
 
   def test_remote_import_processing
     url = 'http://ruby-clean-css.test/foo.css'
-    stub_request(:get, url).to_return(:body => 'a { color: chartreuse; }')
+    WebMock.stub_request(:get, url).to_return(:body => 'a { color: chartreuse; }')
     assert_equal(
       'a{color:#7fff00}',
       compress("@import url(#{url});")

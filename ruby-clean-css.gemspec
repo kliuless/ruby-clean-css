@@ -17,6 +17,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency('commonjs')
   gem.add_development_dependency('rake')
   gem.add_development_dependency('webmock')
+  gem.add_development_dependency('minitest')
+  gem.add_development_dependency('test-unit')
 
   # Append all submodule files to the list of gem files.
   gem_dir = File.expand_path(File.dirname(__FILE__)) + "/"
