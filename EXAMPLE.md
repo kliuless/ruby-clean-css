@@ -4,7 +4,7 @@
 #### emitted the minified result to STDOUT, here's how you might do it. (Errors
 #### and warnings are sent to STDERR.)
 
-    require 'ruby-clean-css'
+    require 'ruby_clean_css'
 
     begin
       compressor = RubyCleanCSS::Compressor.new

@@ -6,7 +6,7 @@ minifying CSS files.
 
 Ruby-Clean-CSS provides more up-to-date and compatible minification of
 stylesheets than the [YUI
-compressor](https://github.com/sstephenson/ruby-yui-compressor) (which was 
+compressor](https://github.com/sstephenson/ruby-yui-compressor) (which was
 [discontinued](http://www.yuiblog.com/blog/2012/10/16/state-of-yui-compressor)
 by Yahoo in 2012)\*.
 
@@ -28,7 +28,7 @@ or as a standalone library.
 
 Here's the simplest thing that could possibly work:
 
-    >> require 'ruby-clean-css'
+    >> require 'ruby_clean_css'
     >> RubyCleanCSS::Compressor.new.compress('a { color: chartreuse; }')
     => "a{color:#7fff00}"
 
@@ -37,8 +37,8 @@ Here's the simplest thing that could possibly work:
 
 You can register the Compressor as Sprocket's default CSS compressor like this:
 
-    require 'ruby-clean-css'
-    require 'ruby-clean-css/sprockets' 
+    require 'ruby_clean_css'
+    require 'ruby_clean_css/sprockets'
     RubyCleanCSS::Sprockets.register(sprockets_env)
 
 
@@ -51,7 +51,7 @@ If you prefer, you can make it explicit in `config/environments/production.rb`:
 
     config.assets.css_compressor = :cleancss
 
-Alternatively, if you want to customize the compressor with options, 
+Alternatively, if you want to customize the compressor with options,
 you can assign an instance of the compressor to that setting:
 
     config.assets.css_compressor = RubyCleanCSS::Compressor.new(
@@ -118,8 +118,8 @@ add this code:
 
     namespace(:assets) do
       task(:environment) do
-        require('ruby-clean-css')
-        require('ruby-clean-css/sprockets')
+        require('ruby_clean_css')
+        require('ruby_clean_css/sprockets')
         RubyCleanCSS::Sprockets.register(Rails.application.assets)
         Rails.application.config.assets.css_compressor = :cleancss
       end
@@ -140,10 +140,10 @@ Which the YUI compressor rewrites to:
 
     -moz-transition:all 0 linear 200ms;
 
-Mozilla won't parse that, because `0` is not a valid time value. You may have 
-encountered other little gotchas, like `background:none` being erroneously 
+Mozilla won't parse that, because `0` is not a valid time value. You may have
+encountered other little gotchas, like `background:none` being erroneously
 shortened to `background:0` and so on. In my testing, Clean-CSS produces a
-higher fidelity compression in these areas. (Here's a handy online tool for 
+higher fidelity compression in these areas. (Here's a handy online tool for
 comparative testing: http://gpbmike.github.io/refresh-sf/)
 
 Beyond that, Clean-CSS has some useful features around automatic inlining of
@@ -163,4 +163,4 @@ Pull requests are welcome. Please supply a test case with your PR.
 ## License
 
 Ruby-Clean-CSS is released under the [MIT
-Licence](https://github.com/joseph/ruby-clean-css/blob/master/LICENSE).
+Licence](https://github.com/tribune/ruby-clean-css/blob/master/LICENSE).
