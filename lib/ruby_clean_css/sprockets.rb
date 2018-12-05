@@ -9,7 +9,7 @@ module RubyCleanCSS
         sprockets.register_compressor('text/css', LABEL, klass.new)
         sprockets.css_compressor = LABEL
       else
-        Sprockets::Compressors.register_css_compressor(
+        ::Sprockets::Compressors.register_css_compressor(
           LABEL,
           klass.to_s,
           :default => true

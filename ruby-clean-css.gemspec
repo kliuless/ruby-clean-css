@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.name = 'ruby-clean-css'
   gem.require_paths = ['lib']
   gem.version = RubyCleanCSS::VERSION
-  gem.add_dependency('commonjs-mini_racer_env')
+  gem.add_dependency('commonjs-mini_racer_env', '~> 0.1.0')
   gem.add_development_dependency('rake')
   gem.add_development_dependency('webmock')
   gem.add_development_dependency('minitest')
