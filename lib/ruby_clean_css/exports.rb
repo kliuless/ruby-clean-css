@@ -22,6 +22,7 @@ module RubyCleanCSS
       # js_env: CommonJS::MiniRacerEnv instance
       def define_all_modules(js_env)
         js_env.attach_rb_functions_to_mod_cache('path', self::Path)
+        # `util` is only used in `bin/cleancss` - we don't really need to define it...
         js_env.attach_rb_functions_to_mod_cache('util', self::Util)
         js_env.attach_rb_functions_to_mod_cache('url', self::Url)
 
@@ -151,6 +152,8 @@ module RubyCleanCSS
 
 
     module Console # :nodoc:
+      # Note: MiniRacer has a built-in `console` object with the correct methods, but they don't
+      #  actually output anything. This enables real output.
       class << self
         def log(*msgs)
           str = build_output(msgs)
