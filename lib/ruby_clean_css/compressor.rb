@@ -12,8 +12,8 @@ module RubyCleanCSS
     MINIFIER_JS_OBJ = 'minifier'
     MINIFY_FUNC = "_#{MINIFIER_JS_OBJ}_minify"
 
-    # On success, `{min: minified_result_string, errors: [], warnings: []}`
-    # On failure, `{errors: [err_msg, ...], warnings: [warn_msg, ...]}`
+    # On success, `{min: minified_result_string, errors: [], warnings: [...], stats: {...}}`
+    # On failure, `{min: nil, errors: [err_msg, ...], warnings: [...], stats: {...}}`
     attr_reader :last_result
 
     def initialize(options = {})
@@ -22,21 +22,21 @@ module RubyCleanCSS
     end
 
     def compress(stream_or_string)
-      @last_result = result = {min: nil, errors: [], warnings: []}
-      begin
-        # This may raise an error
-        result[:min] = minify(stream_or_string.to_s)
-      ensure
-        result[:errors] = get_errors
-        result[:warnings] = get_warnings
-      end
-      result[:min]
+      @last_result = {min: nil, errors: [], warnings: [], stats: {}}
+      @last_result = minify(stream_or_string.to_s)
+      @last_result[:min]
     end
 
     private
 
       def minify(str)
-        js_runtime.call(MINIFY_FUNC, str)
+        js_result = js_runtime.call(MINIFY_FUNC, str)
+        {
+          min: js_result['styles'],
+          errors: js_result['errors'],
+          warnings: js_result['warnings'],
+          stats: js_result['stats']
+        }
       end
 
       def js_runtime
@@ -55,35 +55,34 @@ module RubyCleanCSS
         js_env  # ensure this is initialized
 
         js_runtime.eval( <<~MINIF, filename: "#{__FILE__}/#{__method__}" )
-          let #{MINIFIER_JS_OBJ} = require('clean-css/index')( #{@js_options.to_json} );
+          let #{MINIFIER_JS_OBJ} = new (require('clean-css/index'))( #{@js_options.to_json} );
 
           // Function needs to be on global `this` so `MiniRacer::Context#call` will work
           function #{MINIFY_FUNC}(str) {
-            let resultStr;
+            let resultData;
             // We need to pass a callback, or CleanCss will behave differently from the original
             //  ruby-clean-css gem regarding `@import`s.
-            #{MINIFIER_JS_OBJ}.minify(str, ( _errs, data) => { resultStr = data; });
-            return resultStr;
+            #{MINIFIER_JS_OBJ}.minify(str, null, (_errs, data) => { resultData = data; });
+
+            return resultData;
           }
         MINIF
       end
 
-      def get_errors
-        js_runtime.eval("#{MINIFIER_JS_OBJ}.context.errors")
-      end
-      def get_warnings
-        js_runtime.eval("#{MINIFIER_JS_OBJ}.context.warnings")
-      end
-
       # See README.md for a description of each option, and see
-      # https://github.com/GoalSmashers/clean-css#how-to-use-clean-css-programmatically
+      #   https://github.com/jakubpawlowicz/clean-css#constructor-options
       # for the JS translation.
       #
+      # TODO: there aren't adequate tests for these options
+      #
       def js_options_from_hash(options)
-        js_opts = {}
+        js_opts = {
+          # enable old clean-css behavior for backward compat
+          'inline' => ['all']  # clean-css docs say this is the same as ['local', 'remote'], but local inlining isn't happening without 'all'!
+        }
 
-        if options.has_key?(:keep_special_comments)
-          js_opts['keepSpecialComments'] = {
+        if options.key?(:keep_special_comments)
+          js_opts['specialComments'] = {
             'all' => '*',
             'first' => 1,
             'none' => 0,
@@ -93,54 +92,44 @@ module RubyCleanCSS
           }[options[:keep_special_comments].to_s]
         end
 
-        if options.has_key?(:keep_breaks)
-          js_opts['keepBreaks'] = options[:keep_breaks] ? true : false
+        if options[:keep_breaks]
+          js_opts['format'] = 'keep-breaks'
         end
 
-        if options.has_key?(:root)
-          js_opts['root'] = options[:root].to_s
+        if options.key?(:rebase_to)  # 4.x NOTE: this replaces `root` & `relativeTo`
+          js_opts['rebaseTo'] = options[:rebase_to].to_s
         end
 
-        if options.has_key?(:relative_to)
-          js_opts['relativeTo'] = options[:relative_to].to_s
+        if options.key?(:inline)
+          options[:inline].strip.split(/\s*,\s*/).tap do |vals|
+            js_opts['inline'] = vals
+          end
         end
 
-        if options.has_key?(:process_import)
-          js_opts['processImport'] = options[:process_import] ? true : false
+        if options.key?(:rebase_urls)
+          js_opts['rebase'] = options[:rebase_urls] ? true : true
         end
 
-        if options.has_key?(:no_rebase)
-          js_opts['noRebase'] = options[:no_rebase] ? true : false
-        elsif !options[:rebase_urls].nil?
-          js_opts['noRebase'] = options[:rebase_urls] ? false : true
+        # `advanced` option was removed. This replaces it, maybe? 
+        if options.key?(:level)
+          options[:level].tap do |lvl|
+            [0, 1, 2].include?(lvl) or raise "Invalid :level #{lvl.inspect}"
+            js_opts['level'] = lvl
+          end
         end
 
-        if options.has_key?(:no_advanced)
-          js_opts['noAdvanced'] = options[:no_advanced] ? true : false
-        elsif !options[:advanced].nil?
-          js_opts['noAdvanced'] = options[:advanced] ? false : true
-        end
-
-        if options.has_key?(:rounding_precision)
+        if options.key?(:rounding_precision)  # NOTE: 4.x: defaults to no rounding (was 2)
           js_opts['roundingPrecision'] = options[:rounding_precision].to_i
         end
 
-        if options.has_key?(:compatibility)
+        if options.key?(:compatibility)
           js_opts['compatibility'] = options[:compatibility].to_s
-          unless ['ie7', 'ie8'].include?(js_opts['compatibility'])
+          unless %w[ie7 ie8 ie9 *].include?(js_opts['compatibility'])
             raise(
               'Ruby-Clean-CSS: unknown compatibility setting: '+
               js_opts['compatibility']
             )
           end
-        end
-
-        if options.has_key?(:benchmark)
-          js_opts['benchmark'] = options[:benchmark] ? true : false
-        end
-
-        if options.has_key?(:debug)
-          js_opts['debug'] = options[:debug] ? true : false
         end
 
         js_opts

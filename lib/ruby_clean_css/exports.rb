@@ -34,6 +34,8 @@ module RubyCleanCSS
         define_process_at_toplevel(js_env)
         define_fs_in_cache(js_env)
         define_http_in_cache(js_env)
+        define_os_in_cache(js_env)
+        define_source_map_in_cache(js_env)
       end
 
       private
@@ -46,7 +48,8 @@ module RubyCleanCSS
         ctx.eval( <<~PROC )
           // define on global object to act like Node
           this.process = {
-            nextTick(cb) { cb(); }
+            nextTick(cb) { cb(); },
+            env: {}
           };
         PROC
         ctx.attach('process.cwd', Dir.method(:pwd))
@@ -148,6 +151,24 @@ module RubyCleanCSS
           })( #{http_exports_qname} );
         HTTP
       end
+
+      def define_os_in_cache(js_env)
+        exports_qname = js_env.define_cached_module('os')
+        # careful, need double backslash to mean single JS backslash
+        js_env.runtime.eval( <<~OS , filename: "#{__FILE__}/#{__method__}" )
+          #{exports_qname}.EOL = "\\n";
+        OS
+      end
+
+      def define_source_map_in_cache(js_env)
+        exports_qname = js_env.define_cached_module('source-map')
+        js_env.runtime.eval( <<~SRCMAP , filename: "#{__FILE__}/#{__method__}" )
+          ((srcMap) => {
+            srcMap.SourceMapConsumer = class { /* no-op */ }
+            srcMap.SourceMapGenerator = class { /* no-op */ }
+          })( #{exports_qname} );
+        SRCMAP
+      end
     end
 
 
@@ -199,12 +220,19 @@ module RubyCleanCSS
           File.dirname(path)
         end
 
-        def resolve(path)
-          File.expand_path(path)
+        def resolve(*paths)
+          paths.reduce(Pathname('.')) {|acc, pth|
+            raise TypeError, "#{pth.inspect} is not a String"  unless pth.is_a?(String)
+            acc.join(pth)
+          }.expand_path.to_s
         end
 
         def relative(base, path)
           Pathname.new(path).relative_path_from(Pathname.new(base)).to_s
+        end
+
+        def isAbsolute(path)
+          Pathname.new(path).absolute?
         end
       end
     end

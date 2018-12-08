@@ -1,7 +1,7 @@
 # Ruby-Clean-CSS compressor
 
 This gem provides a Ruby interface to the
-[Clean-CSS](https://github.com/GoalSmashers/clean-css) Node library for
+[Clean-CSS](https://github.com/jakubpawlowicz/clean-css) Node library for
 minifying CSS files.
 
 Ruby-Clean-CSS provides more up-to-date and compatible minification of
@@ -63,38 +63,28 @@ you can assign an instance of the compressor to that setting:
 ## Options
 
 This library supports the following [Clean-CSS
-options](https://github.com/GoalSmashers/clean-css#how-to-use-clean-css-programmatically):
+options](https://github.com/jakubpawlowicz/clean-css#constructor-options):
 
 - `keep_special_comments` - A "special comment" is one that begins with `/*!`.
     You can keep them all with `:all`, just the first with `:first`, or
     remove them all with `:none`. The default is `:all`.
 - `keep_breaks` - By default, all linebreaks are stripped. Set to `true` to
     retain them.
-- `root` - This is the path used to resolve absolute `@import` rules and rebase
-    relative URLS. A string. Defaults to the present working directory.
-- `relative_to` - This path is used to resovle relative `@import` rules and
-    URLs. A string. No default.
-- `process_import` - By default, stylesheets included via `@import` are fetched
-    and minified inline. Set to false to retain `@import` lines unmodified.
+- `rebase_to` - This is the path used to resolve `@import` rules and rebase
+    relative URLs. A string. Defaults to the present working directory.
+- `inline` - By default, stylesheets included via `@import` are fetched
+    and minified inline. Set to 'none' to retain `@import` lines unmodified.
 - `rebase_urls` - By default, all URLs are rebased to the root. Set to `false`
     to prevent rebasing.
-- `advanced` - By default, Clean-CSS applies some advanced optimizations,
-    like selector and property merging, reduction, etc). Set to `false` to
-    prevent these optimizations.
+- `level` - Optimization level. 0 is lowest, 2 is highest. Default is 1.
 - `rounding_precision` - The rounding precision on measurements in your CSS.
-    An integer, defaulting to `2`.
-- `compatibility` - Use this to force Clean-CSS to be compatible with `ie7`
-    or `ie8`. Default is neither. Supply as a symbol (`:ie7`) or
+    An integer, defaulting to `-1` (no rounding).
+- `compatibility` - Use this to force Clean-CSS to be compatible with `ie7`,
+    `ie8`, `ie9`, or `*` (ie10+). Default is `*`. Supply as a symbol (`:ie7`) or
     string (`'ie7'`).
-- `benchmark` - If set to true, will output the duration of each regex
-    replacement in ms to STDERR.
-- `debug` - If set to true, Clean-CSS will output explanatory information
-    to STDERR.
 
 In keeping with the Node library's interface, there are some synonyms available:
 
-- `:no_rebase => true` is the same as `:rebase_urls => false`.
-- `:no_advanced => true` is the same as `:advanced => false`.
 - `:keep_special_comments` has an alternative syntax: `'*'` means  `:all`,
     `1` means `:first` and `0` means `:none`.
 
