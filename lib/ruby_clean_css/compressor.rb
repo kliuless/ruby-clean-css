@@ -29,6 +29,12 @@ module RubyCleanCSS
 
     private
 
+      # Copy of the JS options as seen by the underlying clean-css instance, to troubleshoot the
+      #  translation of ruby options to JS. Should only be called after `setup_minifier`.
+      def native_options
+        js_runtime.eval("#{MINIFIER_JS_OBJ}.options")
+      end
+
       def minify(str)
         js_result = js_runtime.call(MINIFY_FUNC, str)
         {
@@ -73,16 +79,18 @@ module RubyCleanCSS
       #   https://github.com/jakubpawlowicz/clean-css#constructor-options
       # for the JS translation.
       #
-      # TODO: there aren't adequate tests for these options
-      #
       def js_options_from_hash(options)
         js_opts = {
           # enable old clean-css behavior for backward compat
-          'inline' => ['all']  # clean-css docs say this is the same as ['local', 'remote'], but local inlining isn't happening without 'all'!
+          'inline' => ['all'],  # clean-css docs say this is the same as ['local', 'remote'], but local inlining isn't happening without 'all'!
+          # Backward compat: enable optimization levels 1 & 2 with default sub-options.
+          # Note: we don't use `{2 => {'all' => true}}` because some level 2 options default to
+          #  `false`.
+          'level' => {1 => {}, 2 => {}}
         }
 
         if options.key?(:keep_special_comments)
-          js_opts['specialComments'] = {
+          js_opts['level'][1]['specialComments'] = {
             'all' => '*',
             'first' => 1,
             'none' => 0,
@@ -96,30 +104,23 @@ module RubyCleanCSS
           js_opts['format'] = 'keep-breaks'
         end
 
-        if options.key?(:rebase_to)  # 4.x NOTE: this replaces `root` & `relativeTo`
-          js_opts['rebaseTo'] = options[:rebase_to].to_s
-        end
-
         if options.key?(:inline)
-          options[:inline].strip.split(/\s*,\s*/).tap do |vals|
-            js_opts['inline'] = vals
+          options[:inline].tap do |val|
+            raise TypeError, ":inline must be a String"  unless val.is_a?(String)
+            js_opts['inline'] = [val]
           end
         end
 
         if options.key?(:rebase_urls)
-          js_opts['rebase'] = options[:rebase_urls] ? true : true
+          js_opts['rebase'] = options[:rebase_urls] ? true : false
         end
 
-        # `advanced` option was removed. This replaces it, maybe? 
-        if options.key?(:level)
-          options[:level].tap do |lvl|
-            [0, 1, 2].include?(lvl) or raise "Invalid :level #{lvl.inspect}"
-            js_opts['level'] = lvl
-          end
+        if options.key?(:rebase_to)  # 4.x NOTE: this replaces `root` & `relativeTo`
+          js_opts['rebaseTo'] = options[:rebase_to].to_s
         end
 
         if options.key?(:rounding_precision)  # NOTE: 4.x: defaults to no rounding (was 2)
-          js_opts['roundingPrecision'] = options[:rounding_precision].to_i
+          js_opts['level'][1]['roundingPrecision'] = options[:rounding_precision].to_i
         end
 
         if options.key?(:compatibility)

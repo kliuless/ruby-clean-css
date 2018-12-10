@@ -66,27 +66,27 @@ This library supports the following [Clean-CSS
 options](https://github.com/jakubpawlowicz/clean-css#constructor-options):
 
 - `keep_special_comments` - A "special comment" is one that begins with `/*!`.
-    You can keep them all with `:all`, just the first with `:first`, or
-    remove them all with `:none`. The default is `:all`.
+  You can keep them all with `:all`, just the first with `:first`, or
+  remove them all with `:none`. The default is `:all`.
 - `keep_breaks` - By default, all linebreaks are stripped. Set to `true` to
-    retain them.
+  retain them.
 - `rebase_to` - This is the path used to resolve `@import` rules and rebase
-    relative URLs. A string. Defaults to the present working directory.
+  relative URLs. A string. Defaults to the present working directory.
 - `inline` - By default, stylesheets included via `@import` are fetched
-    and minified inline. Set to 'none' to retain `@import` lines unmodified.
+  and minified inline. Set to 'none' to retain `@import` lines unmodified.
+  You can also specify 'local', 'remote', or 'all'.
 - `rebase_urls` - By default, all URLs are rebased to the root. Set to `false`
-    to prevent rebasing.
-- `level` - Optimization level. 0 is lowest, 2 is highest. Default is 1.
-- `rounding_precision` - The rounding precision on measurements in your CSS.
-    An integer, defaulting to `-1` (no rounding).
+  to prevent rebasing.
+- `rounding_precision` - The rounding precision on pixel measurements in your CSS.
+  An integer, defaulting to `-1` (no rounding).
 - `compatibility` - Use this to force Clean-CSS to be compatible with `ie7`,
-    `ie8`, `ie9`, or `*` (ie10+). Default is `*`. Supply as a symbol (`:ie7`) or
-    string (`'ie7'`).
+  `ie8`, `ie9`, or `*` (ie10+). Default is `*`. Supply as a symbol (`:ie7`) or
+  string (`'ie7'`).
 
 In keeping with the Node library's interface, there are some synonyms available:
 
 - `:keep_special_comments` has an alternative syntax: `'*'` means  `:all`,
-    `1` means `:first` and `0` means `:none`.
+  `1` means `:first` and `0` means `:none`.
 
 
 ## Rails local precompilation (reducing production dependencies)
