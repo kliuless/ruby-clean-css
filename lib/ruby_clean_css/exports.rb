@@ -164,8 +164,8 @@ module RubyCleanCSS
         exports_qname = js_env.define_cached_module('source-map')
         js_env.runtime.eval( <<~SRCMAP , filename: "#{__FILE__}/#{__method__}" )
           ((srcMap) => {
-            srcMap.SourceMapConsumer = class { /* no-op */ }
-            srcMap.SourceMapGenerator = class { /* no-op */ }
+            srcMap.SourceMapConsumer = class { /* no-op */ };
+            srcMap.SourceMapGenerator = class { /* no-op */ };
           })( #{exports_qname} );
         SRCMAP
       end
