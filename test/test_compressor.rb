@@ -81,12 +81,12 @@ class RubyCleanCSS::TestCompressor < Test::Unit::TestCase
     }
     # Default: inline all imports (including local)
     assert_equal( inlined_output, compress(input) )
-    # Inline - import is local
+    # Do inline - import is local
     assert_equal( inlined_output, compress(input, inline: 'local') )
 
-    # Inline nothing
+    # Don't inline anything
     assert_equal( non_inlined_output, compress(input, inline: 'none') )
-    # Don't inline - import isn't remote
+    # Don't inline - import isn't remote. Note that this will trigger a clean-css warning.
     assert_equal( non_inlined_output, compress(input, inline: 'remote') )
   ensure
     File.unlink(local_path)  if File.exist?(local_path)
@@ -102,12 +102,12 @@ class RubyCleanCSS::TestCompressor < Test::Unit::TestCase
     WebMock.stub_request(:get, url).to_return(body: 'a { color: chartreuse; }')
     # Default: inline all imports (including remote)
     assert_equal( inlined_output, compress(input) )
-    # Inline - import is remote
+    # Do inline - import is remote
     assert_equal( inlined_output, compress(input, inline: 'remote') )
 
-    # Inline nothing
+    # Don't inline anything
     assert_equal( non_inlined_output, compress(input, inline: 'none') )
-    # Don't Inline - import isn't local
+    # Don't inline - import isn't local. Note that this will trigger a clean-css warning.
     assert_equal( non_inlined_output, compress(input, inline: 'local') )
   end
 
@@ -200,10 +200,10 @@ class RubyCleanCSS::TestCompressor < Test::Unit::TestCase
     c = RubyCleanCSS::Compressor.new(options)
     c.compress(str)
     if c.last_result[:errors].any?
-      STDERR.puts(c.last_result[:errors].join("\n"))
+      STDERR.puts("clean-css errors: " + c.last_result[:errors].join("\n"))
     end
     if c.last_result[:warnings].any?
-      STDERR.puts(c.last_result[:errors].join("\n"))
+      STDERR.puts("clean-css warnings: " + c.last_result[:warnings].join("\n"))
     end
     c.last_result[:min]
   end
