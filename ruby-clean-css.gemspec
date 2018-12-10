@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+require 'English'
 require File.expand_path('../lib/ruby_clean_css/version', __FILE__)
 
 Gem::Specification.new do |gem|
@@ -33,7 +34,7 @@ Gem::Specification.new do |gem|
   `git submodule --quiet foreach pwd`.split($\).each { |submodule_path|
     Dir.chdir(submodule_path) {
       submodule_relative_path = submodule_path.sub gem_dir, ""
-      `git ls-files`.split($\).each { |filename|
+      `git ls-files`.split($RS).each { |filename|
         gem.files << "#{submodule_relative_path}/#{filename}"
       }
     }
