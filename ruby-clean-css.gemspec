@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.description = 'A Ruby interface to the Clean-CSS minifier for Node.'
   gem.summary = 'Clean-CSS for Ruby.'
   gem.homepage = 'https://github.com/tribune/ruby-clean-css'
-  gem.files = `git ls-files`.split($\)
+  gem.files = `git ls-files`.split($RS)
   gem.executables = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files = gem.files.grep(%r{^test/})
   gem.name = 'ruby-clean-css'
@@ -31,7 +31,7 @@ Gem::Specification.new do |gem|
 
   # Append all submodule files to the list of gem files.
   gem_dir = File.expand_path(File.dirname(__FILE__)) + "/"
-  `git submodule --quiet foreach pwd`.split($\).each { |submodule_path|
+  `git submodule --quiet foreach pwd`.split($RS).each { |submodule_path|
     Dir.chdir(submodule_path) {
       submodule_relative_path = submodule_path.sub gem_dir, ""
       `git ls-files`.split($RS).each { |filename|
