@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
       "public gem pushes."
   end
 
-  gem.add_dependency('commonjs-mini_racer_env', '~> 0.1.0')
+  gem.add_dependency('commonjs-mini_racer_env', '~> 0.3.0')
   gem.add_development_dependency('rake')
   gem.add_development_dependency('webmock')
   gem.add_development_dependency('minitest')
