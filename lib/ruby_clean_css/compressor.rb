@@ -6,11 +6,21 @@ module RubyCleanCSS
 
   # Instances should NOT be shared among threads.
   class Compressor
-
     LIB_PATH = File.expand_path(File.dirname(__FILE__)+'/../javascript')
 
     MINIFIER_JS_OBJ = 'minifier'
     MINIFY_FUNC = "_#{MINIFIER_JS_OBJ}_minify"
+
+    START_IGNORE = '/* clean-css ignore:start */'
+    END_IGNORE   = '/* clean-css ignore:end */'
+
+    class << self
+      # Wraps `css_frag` (String) in magic comments to prevent the compressor from modifying it.
+      # The compressor will only remove the magic comments.
+      def prevent_optimize_for(css_frag)
+        "#{START_IGNORE}#{css_frag}#{END_IGNORE}"
+      end
+    end
 
     # On success, `{min: minified_result_string, errors: [], warnings: [...], stats: {...}}`
     # On failure, `{min: nil, errors: [err_msg, ...], warnings: [...], stats: {...}}`

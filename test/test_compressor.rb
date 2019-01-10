@@ -195,6 +195,15 @@ class RubyCleanCSS::TestCompressor < Test::Unit::TestCase
     end
   end
 
+  def test_prevent_optimize_for
+    untouched_frag = '${placeholder}'  # make sure this contains invalid CSS
+    wrapped_frag = RubyCleanCSS::Compressor.prevent_optimize_for(untouched_frag)
+    css = ".met-rule-#{wrapped_frag} li { text-decoration: none; } a {  color: chartreuse; } a { font-weight: bold; font-size: 10.5 }"
+    expected = ".met-rule-#{untouched_frag}li{text-decoration:none}a{color:#7fff00;font-weight:700;font-size:10.5}"
+    assert_equal(expected, compress(css))
+    pend 'Is the space needed after `untouched_frag`?'
+  end
+
 
   def compress(str, options = {})
     c = RubyCleanCSS::Compressor.new(options)
