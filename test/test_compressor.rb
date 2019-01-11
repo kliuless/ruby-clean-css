@@ -73,10 +73,10 @@ class RubyCleanCSS::TestCompressor < Test::Unit::TestCase
     c = RubyCleanCSS::Compressor.new(options)
     c.compress(str)
     if c.last_result[:errors].any?
-      STDERR.puts(c.last_result[:errors].join("\n"))
+      STDERR.puts("clean-css errors: " + c.last_result[:errors].join("\n"))
     end
     if c.last_result[:warnings].any?
-      STDERR.puts(c.last_result[:errors].join("\n"))
+      STDERR.puts("clean-css warnings: " + c.last_result[:warnings].join("\n"))
     end
     c.last_result[:min]
   end
